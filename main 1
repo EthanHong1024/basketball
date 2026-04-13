@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michael Jordan: The Last Shot & Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bulls-red: #CE1141;
+            --gold: #C5A059;
+            --black: #000000;
+            --white: #ffffff;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--black);
+            color: var(--white);
+            font-family: 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* 主視覺區 */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.9)), 
+                        url('https://sport.videoland.com.tw/newsphoto/news_2024115409_3524E8.jpg');
+            background-size: cover;
+            background-position: center top;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero h1 { font-family: 'Oswald'; font-size: 5rem; margin: 0; text-shadow: 3px 3px 10px #000; }
+        .hero p { font-size: 1.5rem; color: var(--gold); letter-spacing: 5px; }
+
+        /* 敘述區 */
+        .story-section {
+            padding: 80px 15%;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        .story-section h2 { color: var(--bulls-red); font-size: 2.5rem; margin-bottom: 20px; font-family: 'Oswald'; }
+        
+        .highlight { color: var(--gold); font-weight: bold; font-size: 1.3rem; }
+
+        /* 遊戲容器 */
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: #111;
+            border-top: 4px solid var(--bulls-red);
+            border-bottom: 4px solid var(--bulls-red);
+            overflow: hidden;
+        }
+
+        #game-ui {
+            position: absolute;
+            top: 20px; left: 20px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .btn-scroll {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: var(--bulls-red);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 50px;
+            transition: 0.3s;
+        }
+        .btn-scroll:hover { background: var(--gold); }
+
+    </style>
+</head>
+<body>
+
+    <header class="hero">
+        <h1>THE LAST SHOT</h1>
+        <p>跟隨傳奇的腳步</p>
+        <a href="#story" class="btn-scroll">閱讀故事</a>
+    </header>
+
+    <section id="story" class="story-section">
+        <h2>絕殺時刻：1998 總決賽</h2>
+        <p>
+            在 1998 年總決賽第 6 戰，鐘響前最後關頭，<span class="highlight">Michael Jordan</span> 抄截後運球至前場，
+            面對防守者一個變向晃動，隨後在罰球線附近躍起——這記被稱為「The Last Shot」的絕殺，為公牛隊帶來了第六座總冠軍。
+        </p>
+        <p>
+            現在，輪到你來體驗這份壓力。在下方的 3D 模擬器中，嘗試挑戰 Jordan 的投籃評分！
+        </p>
+        <a href="#game-container" class="btn-scroll">開始投籃挑戰</a>
+    </section>
+
+    <div id="game-container">
+        <div id="game-ui">
+            <h2 style="margin:0; color: var(--gold);">JORDAN CHALLENGE</h2>
+            <p>分數: <span id="score">0</span> | NBA 2K 評分: <span id="rating">85</span></p>
+            <p><small>點擊畫面投籃，進球可提升評分！</small></p>
+        </div>
+    </div>
+
+    <footer style="text-align:center; padding: 40px; color: #444;">
+        &copy; 2026 MJ Legend & Game Project
+    </footer>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // 遊戲初始化
+        const container = document.getElementById('game-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x111111);
+        
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        const light = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(light);
+
+        // 建立簡易籃框區
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({color: 0x333333}));
+        floor.rotation.x = -Math.PI/2;
+        scene.add(floor);
+
+        const backboard = new THREE.Mesh(new THREE.BoxGeometry(2, 1.5, 0.1), new THREE.MeshStandardMaterial({color: 0xeeeeee}));
+        backboard.position.set(0, 4, -5);
+        scene.add(backboard);
+
+        const rim = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.05, 16, 100), new THREE.MeshStandardMaterial({color: 0xff4500}));
+        rim.rotation.x = Math.PI/2;
+        rim.position.set(0, 3.5, -4.3);
+        scene.add(rim);
+
+        camera.position.set(0, 2, 5);
+
+        // 投籃邏輯
+        let balls = [];
+        let score = 0;
+        let rating = 85;
+
+        container.addEventListener('mousedown', () => {
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), new THREE.MeshStandardMaterial({color: 0xff6600}));
+            ball.position.set(0, 1.5, 3);
+            const vel = new THREE.Vector3((Math.random()-0.5)*0.4, 6, -7);
+            balls.push({ mesh: ball, vel: vel, scored: false });
+            scene.add(ball);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            balls.forEach((b, i) => {
+                b.vel.y -= 0.2; // 重力
+                b.mesh.position.add(b.vel.clone().multiplyScalar(0.1));
+                
+                // 簡易得分判定
+                if(b.mesh.position.distanceTo(new THREE.Vector3(0, 3.5, -4.3)) < 0.5 && !b.scored && b.vel.y < 0) {
+                    b.scored = true;
+                    score++;
+                    if(rating < 99) rating++;
+                    document.getElementById('score').innerText = score;
+                    document.getElementById('rating').innerText = rating;
+                }
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+</body>
+</html>
