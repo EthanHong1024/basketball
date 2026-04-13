@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA 2K Style 5V5 Simulator</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #111; }
+        canvas { display: block; }
+        
+        /* UI 疊加層 */
+        #game-ui {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .menu {
+            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 2px solid #f57c00;
+            border-radius: 10px;
+            max-width: 400px;
+        }
+
+        .stats-panel {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 5px;
+            width: fit-content;
+        }
+
+        button {
+            background: #f57c00;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        button:hover { background: #ff9800; }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="game-ui">
+    <div class="stats-panel">
+        <div>金幣 (VC): $<span id="vc-amount">1000</span></div>
+        <div>目前等級: Lv.<span id="char-level">1</span></div>
+        <div>當前角色: <span id="current-char">未選擇</span></div>
+    </div>
+
+    <div id="main-menu" class="menu">
+        <h2>NBA 2K 模擬器</h2>
+        <p>選擇你的 NBA 球星或創建角色</p>
+        <div id="character-list">
+            <button onclick="selectNBA('Stephen Curry', 95, 500)">Curry (Tier 1) - $500</button>
+            <button onclick="selectNBA('LeBron James', 94, 450)">LeBron (Tier 2) - $450</button>
+        </div>
+        <hr>
+        <h3>創建自定義角色</h3>
+        <input type="text" id="custom-name" placeholder="角色名稱">
+        <p>剩餘點數: <span id="skill-points">85</span></p>
+        <button onclick="createCharacter()">創建並進入全場 5V5</button>
+    </div>
+
+    <div id="hud" class="hidden" style="text-align: center;">
+        <h2 id="match-score">HOME 0 : 0 AWAY</h2>
+        <p>控制：WASD 移動 / 點擊投籃 / 空白鍵抄截</p>
+    </div>
+</div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+
+    // --- 遊戲數據變數 ---
+    let vc = 1000;
+    let level = 1;
+    let myPlayer = null;
+    let players = []; // 儲存 5V5 所有球員
+
+    // --- 初始化 3D 場景 ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x222222);
+    
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // 光照
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+    const topLight = new THREE.PointLight(0xffffff, 1);
+    topLight.position.set(0, 10, 0);
+    scene.add(topLight);
+
+    // 籃球場 (木地板)
+    const courtGeo = new THREE.PlaneGeometry(28, 15);
+    const courtMat = new THREE.MeshStandardMaterial({ color: 0xbc8f8f });
+    const court = new THREE.Mesh(courtGeo, courtMat);
+    court.rotation.x = -Math.PI / 2;
+    scene.add(court);
+
+    // 建立 10 個球員佔位符 (5V5)
+    function spawnTeams() {
+        for (let i = 0; i < 10; i++) {
+            const isHome = i < 5;
+            const geo = new THREE.CapsuleGeometry(0.3, 0.7, 4, 8);
+            const mat = new THREE.MeshStandardMaterial({ color: isHome ? 0x0000ff : 0xff0000 });
+            const p = new THREE.Mesh(geo, mat);
+            
+            p.position.set(isHome ? -5 - (i*1.5) : 5 + ((i-5)*1.5), 1, (Math.random()-0.5)*10);
+            scene.add(p);
+            players.push(p);
+        }
+    }
+
+    camera.position.set(0, 12, 12);
+    camera.lookAt(0, 0, 0);
+
+    // --- 互動功能邏輯 ---
+    window.selectNBA = function(name, rating, cost) {
+        if (vc >= cost) {
+            vc -= cost;
+            updateUI(name, level, vc);
+            startGame();
+        } else {
+            alert("VC 不足！");
+        }
+    };
+
+    window.createCharacter = function() {
+        const name = document.getElementById('custom-name').value || "My Player";
+        updateUI(name, level, vc);
+        startGame();
+    };
+
+    function updateUI(name, lv, money) {
+        document.getElementById('current-char').innerText = name;
+        document.getElementById('char-level').innerText = lv;
+        document.getElementById('vc-amount').innerText = money;
+    }
+
+    function startGame() {
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('hud').classList.remove('hidden');
+        spawnTeams();
+        animate();
+    }
+
+    // 動畫循環
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // 簡易 AI：讓球員隨機晃動模擬比賽
+        players.forEach(p => {
+            p.position.x += (Math.random() - 0.5) * 0.05;
+            p.position.z += (Math.random() - 0.5) * 0.05;
+        });
+
+        renderer.render(scene, camera);
+    }
+
+    // 處理視窗縮放
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+</script>
+</body>
+</html>
