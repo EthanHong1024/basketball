@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michael Jordan | The GOAT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bulls-red: #CE1141;
+            --gold: #C5A059;
+            --black: #000000;
+            --white: #ffffff;
+            --gray: #1a1a1a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--black);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+        }
+
+        /* 背景浮水印 */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 25vw;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: -1;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        /* 導覽列 */
+        nav {
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.9);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--bulls-red);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--bulls-red);
+            letter-spacing: 2px;
+        }
+
+        /* 主視覺區 */
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://images.unsplash.com/photo-1546510807-a929f59ad99b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        header h1 {
+            font-size: 8rem;
+            margin-bottom: 10px;
+            letter-spacing: 10px;
+            color: var(--white);
+            text-shadow: 5px 5px 0px var(--bulls-red);
+        }
+
+        header p {
+            font-size: 1.5rem;
+            color: var(--gold);
+            letter-spacing: 5px;
+        }
+
+        /* 數據統計區 */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 80px 20px;
+            background: var(--gray);
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 4rem;
+            color: var(--bulls-red);
+            font-weight: bold;
+            font-family: 'Oswald';
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        /* 內容區塊 */
+        .section {
+            padding: 100px 10%;
+        }
+
+        .section h2 {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            border-left: 8px solid var(--bulls-red);
+            padding-left: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: #111;
+            padding: 30px;
+            border: 1px solid #333;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--bulls-red);
+            transform: translateY(-10px);
+        }
+
+        .card h3 {
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+
+        /* 頁尾 */
+        footer {
+            padding: 50px;
+            text-align: center;
+            background: var(--black);
+            border-top: 1px solid #333;
+            color: #666;
+        }
+
+        /* 手機版優化 */
+        @media (max-width: 768px) {
+            header h1 { font-size: 4rem; }
+            nav { padding: 20px; }
+            .stats-container { flex-direction: column; gap: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="watermark">23</div>
+
+    <nav>
+        <div class="logo">JORDAN // 23</div>
+        <div class="links">
+            <span style="color: var(--gold);">LEGEND NEVER DIES</span>
+        </div>
+    </nav>
+
+    <header>
+        <h1>JORDAN</h1>
+        <p>THE GREATEST OF ALL TIME</p>
+    </header>
+
+    <div class="stats-container">
+        <div class="stat-box">
+            <div class="stat-number">6</div>
+            <div class="stat-label">NBA 總冠軍</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">5</div>
+            <div class="stat-label">年度 MVP</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">32,292</div>
+            <div class="stat-label">職業生涯總得分</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">14</div>
+            <div class="stat-label">全明星賽入選</div>
+        </div>
+    </div>
+
+    <section class="section">
+        <h2>職業生涯成就</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>兩次三連霸</h3>
+                <p>分別在 1991-1993 年以及 1996-1998 年帶領芝加哥公牛隊創下王朝紀錄，六次總決賽皆獲得 MVP。</p>
+            </div>
+            <div class="card">
+                <h3>防守專家</h3>
+                <p>不僅是得分王，喬丹還獲得過年度最佳防守球員（DPOY），並 9 次入選年度防守第一隊。</p>
+            </div>
+            <div class="card">
+                <h3>Air Jordan 品牌</h3>
+                <p>與 Nike 合作定義了現代球鞋文化，Jumpman 標誌成為全球追求卓越的象徵。</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background-color: #050505;">
+        <h2>經典名言</h2>
+        <blockquote style="font-size: 2rem; font-style: italic; border-left: 5px solid var(--gold); padding-left: 30px;">
+            "I've failed over and over and over again in my life. And that is why I succeed."
+            <br>
+            <span style="font-size: 1.2rem; color: var(--bulls-red);">— Michael Jordan</span>
+        </blockquote>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Michael Jordan Tribute Page. Created for GitHub Portfolios.</p>
+    </footer>
+
+</body>
+</html>
